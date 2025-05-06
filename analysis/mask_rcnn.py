@@ -71,8 +71,6 @@ def process_frame(chosen_model, img, device, transform, coco_labels, tracker, co
         box.past_centroids.append(box.centroid)
         if box.is_accident:
           cv2.rectangle(img, (box.x1, box.y1), (box.x2, box.y2), (0, 255, 255), rectangle_thickness)
-        if box.id==47:
-          print(box.overlaps)
         if not box.overlaps:
           cv2.rectangle(img, (box.x1, box.y1), (box.x2, box.y2), (255, 0, 0), rectangle_thickness)
         else:

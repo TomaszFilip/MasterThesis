@@ -1,8 +1,4 @@
 import math
-
-from sympy.physics.units import acceleration
-
-
 class TrackedObject:
     def __init__(self, obj_type, x1, y1, x2, y2, obj_id=None, cat=None, cat_prob=None, overlaps=False):
         self.type = obj_type
@@ -54,13 +50,17 @@ class TrackedObject:
         x1sq=self.vector[0]*self.vector[0]
         x2sq=self.vector[1]*self.vector[1]
         self.magnitude=math.sqrt(x1sq+x2sq)
-        self.magnitudes.append(self.magnitude)
+        if self.magnitude!=0:
+            self.magnitudes.append(self.magnitude)
 
     def trajectory_anomaly(self):
         if self.vector is not None and self.overlaps_with.vector is not None:
             dot_product=self.vector[0]*self.overlaps_with.vector[0]+self.vector[1]*self.overlaps_with.vector[1]
-            magnitude_product=self.magnitude*self.overlaps_with.magnitude
-            res= math.acos(dot_product/magnitude_product)
+            try:
+                magnitude_product=self.magnitude*self.overlaps_with.magnitude
+                res= math.acos(dot_product/magnitude_product)
+            except:
+                return 0
             return res
         return 0
 
@@ -77,7 +77,7 @@ class TrackedObject:
             magnitude2 = math.sqrt(x3sq + x4sq)
 
             magnitude_product = magnitude1 * magnitude2
-            if (magnitude_product is not 0):
+            if (magnitude_product!=0):
                 try:
                     res = math.acos(dot_product / magnitude_product)
                     return res
@@ -98,8 +98,9 @@ class TrackedObject:
             x2, y2 = self.past_centroids[-1]
             self.vector = x2-x1, y2-y1
             self.compute_magnitude()
-            self.norm_vector=self.vector[0]/self.magnitude, self.vector[1]/self.magnitude
-            self.norm_vectors.append(self.norm_vector)
+            if self.magnitude>0:
+                self.norm_vector=self.vector[0]/self.magnitude, self.vector[1]/self.magnitude
+                self.norm_vectors.append(self.norm_vector)
         else:
             return 0,0
 
@@ -109,10 +110,7 @@ class TrackedObject:
             alpha=self.acceleration_anomaly()
             beta=self.trajectory_anomaly()
             gamma=self.angle_anomaly()
-            if self.id==12:
-                print(alpha, beta, gamma)
-            if (alpha)+(0*beta)+(0*gamma)<-10:
-
+            if (-1*alpha)+(0*beta)+(3*gamma)>10:
               self.is_accident=True
               print(alpha)
               print("ACCIDENT!!!")
