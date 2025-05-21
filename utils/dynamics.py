@@ -83,7 +83,9 @@ def get_overlap_info(objects : list[TrackedObject]):
       obj1.overlaps=False
       obj1.overlaps_with=None
     for i, obj1 in enumerate(objects):
-        for j, obj2 in enumerate(objects):
-            if i != j and check_overlap(obj1, obj2) and obj1.is_present and obj2.is_present:
-                obj1.overlaps=True
-                obj1.overlaps_with=obj2
+        if obj1.is_present:
+            for j, obj2 in enumerate(objects):
+                if obj2.is_present:
+                    if i != j and check_overlap(obj1, obj2):
+                        obj1.overlaps=True
+                        obj1.overlaps_with=obj2
