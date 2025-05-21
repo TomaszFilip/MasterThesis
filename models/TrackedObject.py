@@ -6,6 +6,7 @@ class TrackedObject:
         self.y1 = y1
         self.x2 = x2
         self.y2 = y2
+        self.H=0
         self.vector=None
         self.centroid = ((x1 + x2) // 2, (y1 + y2) // 2)  # Use integer division for consistency
         self.width=x2-x1
@@ -32,7 +33,8 @@ class TrackedObject:
       if len(self.past_centroids) >= 5:
         x1, y1 = self.past_centroids[-5]
         x2, y2 = self.past_centroids[-1] #-1=last element
-        self.speed = (((float(x2) - x1) ** float(2) + (float(y2) - y1) ** 2) ** 0.5)/4
+        s=(((float(x2) - x1) ** float(2) + (float(y2) - y1) ** 2) ** 0.5)/4
+        self.speed = s*(((self.H-self.height)/self.H)+1)
         self.speeds.append(self.speed)
       #else:
         #x1, y1 = self.past_centroids[-(len(self.past_centroids))]
@@ -44,6 +46,7 @@ class TrackedObject:
       if(len(self.speeds)>=5):
         self.acceleration=float(self.speeds[-1])-float(self.speeds[-5])
         self.accelerations.append(self.acceleration)
+
         self.avr_acceleration=sum(self.accelerations[-15:]) / min(len(self.accelerations),15)
 
     def compute_magnitude(self):
@@ -104,15 +107,13 @@ class TrackedObject:
         else:
             return 0,0
 
-    def check_accident(self):
+    def check_accident(self,a=0,b=0,g=0):
       self.is_accident=False
       if self.overlaps and self.overlaps_with is not None:
             alpha=self.acceleration_anomaly()
             beta=self.trajectory_anomaly()
             gamma=self.angle_anomaly()
-            if (-1*alpha)+(0*beta)+(3*gamma)>10:
+            if (a*alpha)+(b*beta)+(g*gamma)>10:
               self.is_accident=True
-              print(alpha)
-              print("ACCIDENT!!!")
             else:
               self.is_accident=False

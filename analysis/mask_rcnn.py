@@ -60,29 +60,8 @@ def process_frame(chosen_model, img, device, transform, coco_labels, tracker, co
         x1, y1, x2, y2 = map(int, results["boxes"][i])
         id=-1
         obj=TrackedObject(label,x1, y1, x2, y2,id,label,score)
-        if obj.cat in ['truck', 'motorcycle', 'car']:
+        if obj.cat in ['truck', 'motorcycle', 'car', 'bicycle']:
           objects.append(obj)
-    boxes = tracker.update(objects)
-    get_overlap_info(boxes)
-    for box in boxes:
-        cv2.putText(img, str(box.id),(box.x1,box.y1-15),  cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255,255,255), 2)
-        cv2.rectangle(img, (box.x1,box.y1),(box.x2, box.y2), (255,255,255), 2)
-        # Draw bounding box
-        box.past_centroids.append(box.centroid)
-        if box.is_accident:
-          cv2.rectangle(img, (box.x1, box.y1), (box.x2, box.y2), (0, 255, 255), rectangle_thickness)
-        if not box.overlaps:
-          cv2.rectangle(img, (box.x1, box.y1), (box.x2, box.y2), (255, 0, 0), rectangle_thickness)
-        else:
-          cv2.rectangle(img, (box.x1, box.y1), (box.x2, box.y2), (0, 0, 255), rectangle_thickness)
-
-        # Add class label
-        cv2.putText(img, f"Class {box.cat} ({box.cat_prob:.2f})",
-                    (box.x1, box.y1 - 10), cv2.FONT_HERSHEY_PLAIN, 1, (255, 0, 0), text_thickness)
-        box.past_centroids.append(box.centroid) #store the current centroid.
-        for past_centroid in box.past_centroids:
-          cv2.circle(img, past_centroid, 3, (0, 255, 0), -1)
-
-    return img, results, boxes
+    return objects
 
 
