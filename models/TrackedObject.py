@@ -114,9 +114,10 @@ class TrackedObject:
             beta=self.trajectory_anomaly()
             gamma=self.angle_anomaly()
             base=(a*alpha)+(g*gamma)
-            if base>15:
-                if beta>((b-1)/4)*3.15 and beta<(b/4)*3.15:
-                    self.is_accident=True
+            if base>20:
+                self.is_accident = True
+                #if beta>((b-1)/4)*3.15 and beta<(b/4)*3.15:
+                    #self.is_accident=True
               #print(beta)
               #self.is_accident=True
             else:

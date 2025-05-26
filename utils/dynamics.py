@@ -64,9 +64,9 @@ class EuclideanDistTracker:
 
         return updated_objects
 
-def check_overlap(a:TrackedObject,b:TrackedObject):
-    x_intersect= 2*(abs(a.centroid[0]-b.centroid[0]))<(a.width+b.width)
-    y_intersect= 2*(abs(a.centroid[1]-b.centroid[1]))<(a.height+b.height)
+def check_overlap(a:TrackedObject, b:TrackedObject):
+    x_intersect = 2 * abs(a.centroid[0] - b.centroid[0]) < (a.width + b.width)
+    y_intersect = 2 * abs(a.centroid[1] - b.centroid[1]) < (a.height + b.height)
     return x_intersect and y_intersect
     #x_left = max(obj1.x1, obj2.x1)
     #y_top = max(obj1.y1, obj2.y1)
@@ -78,14 +78,17 @@ def check_overlap(a:TrackedObject,b:TrackedObject):
         #return False
 
 def get_overlap_info(objects : list[TrackedObject]):
-    overlap_info = {}
-    for i, obj1 in enumerate(objects):
-      obj1.overlaps=False
-      obj1.overlaps_with=None
+    for obj in objects:
+        obj.overlaps = False
+        obj.overlaps_with = None
+
     for i, obj1 in enumerate(objects):
         if obj1.is_present:
             for j, obj2 in enumerate(objects):
-                if obj2.is_present:
-                    if i != j and check_overlap(obj1, obj2):
-                        obj1.overlaps=True
-                        obj1.overlaps_with=obj2
+                if obj2.is_present and i != j:
+                    if check_overlap(obj1, obj2):
+                        obj1.overlaps = True
+                        obj1.overlaps_with = obj2
+                        obj2.overlaps = True
+                        obj2.overlaps_with = obj1
+    return objects
