@@ -1,4 +1,5 @@
 import math
+
 class TrackedObject:
     def __init__(self, obj_type, x1, y1, x2, y2, obj_id=None, cat=None, cat_prob=None, overlaps=False):
         self.type = obj_type
@@ -28,6 +29,7 @@ class TrackedObject:
         self.acceleration=None
         self.avr_acceleration=None
         self.is_present=True
+        self.fhiii = 0
 
     def compute_speed(self):
       if len(self.past_centroids) >= 5:
@@ -41,6 +43,9 @@ class TrackedObject:
         #x2, y2 = self.past_centroids[-1] #-1=last element
         #self.speed = (((float(x2) - float(x1)) ** 2 + (float(y2) - float(y1)) ** 2) ** 0.5)/(len(self.past_centroids))
         #self.speeds.append(self.speed)
+
+    def euclidean_distance(pt1, pt2):
+        return math.hypot(pt1[0] - pt2[0], pt1[1] - pt2[1])
 
     def compute_acceleration(self):
       if(len(self.speeds)>=5):
@@ -66,6 +71,18 @@ class TrackedObject:
                 return 0
             return res
         return 0
+
+    def covered_distance(self):
+        if len(self.past_centroids) >= 15:
+            return self.euclidean_distance(self.past_centroids[-15], self.past_centroids[-1])
+        else:
+            return 0
+
+    def covered_distance2(self):
+        if len(self.past_centroids) >= 2:
+            return self.euclidean_distance(self.past_centroids[-2], self.past_centroids[-1])
+        else:
+            return 0
 
     def angle_anomaly(self):
         if (len(self.norm_vectors) >= 5):
@@ -107,17 +124,28 @@ class TrackedObject:
         else:
             return 0,0
 
-    def check_accident(self,a=0,b=0,g=0):
+    def check_accident(self,a,b,g,t):
       self.is_accident=False
-      if self.overlaps and self.overlaps_with is not None:
+      if not hasattr(self, 'fh'):
+          self.fh = 0
+      self.fh+=1
+      if self.overlaps and self.is_present and self.overlaps_with  is not None:
             alpha=self.acceleration_anomaly()
             beta=self.trajectory_anomaly()
             gamma=self.angle_anomaly()
             base=(a*alpha)+(g*gamma)
-            if base>20:
+            if beta>=0 and beta<(1/4)*3.15:
+                res=base*1.1
+            if beta>=(1/4)*3.15 and beta<(2/4)*3.15:
+                res=base*1.2
+            if beta>=(2/4)*3.15 and beta<(3/4)*3.15:
+                res=base*1
+            if beta>=(3/4)*3.15and beta<(4/4)*3.15:
+                res=base*1
+            if res>t:
                 self.is_accident = True
-                #if beta>((b-1)/4)*3.15 and beta<(b/4)*3.15:
-                    #self.is_accident=True
+                #print(self.width, self.covered_distance())
+              #self.is_accident=True
               #print(beta)
               #self.is_accident=True
             else:
