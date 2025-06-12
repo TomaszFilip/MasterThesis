@@ -44,7 +44,7 @@ class TrackedObject:
         #self.speed = (((float(x2) - float(x1)) ** 2 + (float(y2) - float(y1)) ** 2) ** 0.5)/(len(self.past_centroids))
         #self.speeds.append(self.speed)
 
-    def euclidean_distance(pt1, pt2):
+    def euclidean_distance(self,pt1, pt2):
         return math.hypot(pt1[0] - pt2[0], pt1[1] - pt2[1])
 
     def compute_acceleration(self):
@@ -73,8 +73,8 @@ class TrackedObject:
         return 0
 
     def covered_distance(self):
-        if len(self.past_centroids) >= 15:
-            return self.euclidean_distance(self.past_centroids[-15], self.past_centroids[-1])
+        if len(self.past_centroids) >= 2:
+            return self.euclidean_distance(self.past_centroids[0], self.past_centroids[-1])
         else:
             return 0
 
@@ -129,7 +129,7 @@ class TrackedObject:
       if not hasattr(self, 'fh'):
           self.fh = 0
       self.fh+=1
-      if self.overlaps and self.is_present and self.overlaps_with  is not None:
+      if self.overlaps and self.is_present and self.overlaps_with is not None and self.covered_distance()>self.width/3 and self.fh>15:
             alpha=self.acceleration_anomaly()
             beta=self.trajectory_anomaly()
             gamma=self.angle_anomaly()
